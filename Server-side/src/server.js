@@ -1,18 +1,22 @@
 import express from "express";
 import pool from "./config/database.js";
 
+import userRoutes from "./routes/api/userRoutes.js"
+
 const app = express();
 
 app.use(express.json());
 
-pool.query("SELECT NOW()")
+app.use("/api", userRoutes);
+
+/* pool.query("SELECT NOW()")
     .then(result => {
         console.log("PostgreSQL conectado!");
         console.log(result.rows[0]);
     })
     .catch(error => {
         console.error("Erro na conexão:", error.message);
-    });
+    }); */
 
 app.listen(3000, () => {
     console.log("Servidor iniciado na porta 3000");
