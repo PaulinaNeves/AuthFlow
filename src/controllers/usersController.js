@@ -62,17 +62,43 @@ export const insertUser = async (req, res) => {
     const password = req.body.password;
     const passwordHash = await bcrypto.hash(password, 10);
     const user = await pool.query(
-      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at",
-      [req.body.name, req.body.email, req.body.passwordHash],
+      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at,passord",
+      [req.body.name, req.body.email, passwordHash],
     );
 
     res.status(201).json({ message: "Sucsess", data: user.rows[0] });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Sorry, somenthing went wrong while creating this user!",
-        erro: error.message,
-      });
+    res.status(500).json({
+      message: "Sorry, somenthing went wrong while creating this user!",
+      erro: error.message,
+    });
+  }
+};
+
+//Method Edit Update
+export const editUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email } = req.body;
+    console.log(req.body);
+
+    /*   console.log("BODY:", req.body);
+console.log("HEADERS:", req.headers); */
+    const user = await pool.query(
+      "UPDATE users SET name = $1, email = $2 WHERE id= $3 RETURNING name, email, created_at",
+      [name, email, id],
+    );
+    if (user.rowCount === 0) {
+      res.status(404).json({ message: "User Not Found" });
+    } else {
+      res
+        .status(200)
+        .json({ message: "User Updated successfully", data: user.rows[0] });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Sorry, somenthing went wrong while updating this user!",
+      erro: error.message,
+    });
   }
 };
