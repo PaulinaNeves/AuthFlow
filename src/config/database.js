@@ -13,10 +13,4 @@ const pool = new Pool({
     database:process.env.DB_NAME
 });
 
-console.log({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    passwordLoaded: typeof process.env.DB_PASSWORD === "string"
-});
-
 export default pool;

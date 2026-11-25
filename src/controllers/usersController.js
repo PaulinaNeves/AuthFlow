@@ -4,7 +4,6 @@ import bcrypto from "bcryptjs";
 //Method index
 export const getUsers = async (req, res) => {
   try {
-    
     const users = await pool.query(
       "SELECT id, name, email, created_at FROM users",
     );
@@ -20,8 +19,8 @@ export const getUsers = async (req, res) => {
 //Method show
 export const getUserById = async (req, res) => {
   try {
-    if(Number(req.params.id)!== req.user.userId){
-       return res.status(403).json({message: "User not authorized"})
+    if (Number(req.params.id) !== req.user.userId) {
+      return res.status(403).json({ message: "User not authorized" });
     }
     const user = await pool.query(
       "SELECT id, name, created_at FROM users Where id= $1",
@@ -44,8 +43,8 @@ export const getUserById = async (req, res) => {
 export const destroy = async (req, res) => {
   try {
     const id = req.params.id;
-    if (Number(id) !== req.user.userId){
-      return res.status(403).json({message: "User not authorized"})
+    if (Number(id) !== req.user.userId) {
+      return res.status(403).json({ message: "User not authorized" });
     }
     const user = await pool.query("DELETE FROM users WHERE id=$1", [
       req.params.id,
@@ -68,7 +67,6 @@ export const destroy = async (req, res) => {
 export const insertUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required!" });
@@ -80,17 +78,16 @@ export const insertUser = async (req, res) => {
       [name, email, passwordHash],
     );
 
-    res.status(201).json({ message: "Success", data: user.rows[0]});
+    res.status(201).json({ message: "Success", data: user.rows[0] });
   } catch (error) {
     if (error.code === "23505") {
-      res.status(409).json({message: "This email already exists!"});
+      res.status(409).json({ message: "This email already exists!" });
     } else {
-       res.status(500).json({
-      message: "Sorry, somenthing went wrong while creating this user!",
-      erro: error.message,
-    });
+      res.status(500).json({
+        message: "Sorry, somenthing went wrong while creating this user!",
+        erro: error.message,
+      });
     }
-   
   }
 };
 
@@ -100,16 +97,14 @@ export const editUser = async (req, res) => {
     const { id } = req.params;
     const { name, email, password } = req.body;
 
-    if (Number(id )!== req.user.userId) {
-      return res.status(403).json({message: "User not authorized"});
+    if (Number(id) !== req.user.userId) {
+      return res.status(403).json({ message: "User not authorized" });
     }
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required!" });
     }
     const passwordHash = await bcrypto.hash(password, 10);
-    /*   console.log("BODY:", req.body);
-console.log("HEADERS:", req.headers); */
     const user = await pool.query(
       "UPDATE users SET name = $1, email = $2, password_hash = $3 WHERE id= $4 RETURNING name, email, created_at",
       [name, email, passwordHash, id],
@@ -122,14 +117,15 @@ console.log("HEADERS:", req.headers); */
         .json({ message: "User Updated successfully", data: user.rows[0] });
     }
   } catch (error) {
-    if (error.code==="23505") {
+    if (error.code === "23505") {
       res.status(409).json({
-      message: "This email already exists!"});
+        message: "This email already exists!",
+      });
     } else {
       res.status(500).json({
-      message: "Sorry, somenthing went wrong while updating this user!",
-      erro: error.message,
-    });
+        message: "Sorry, somenthing went wrong while updating this user!",
+        erro: error.message,
+      });
     }
   }
 };
